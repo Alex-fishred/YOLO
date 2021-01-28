@@ -1,0 +1,110 @@
+
+安裝及訓練流程請參考:https://medium.com/ching-i/yolo-c49f70241aa7
+https://www.codenong.com/cs107053328/
+https://blog.csdn.net/Nighticerain/article/details/106752314
+https://medium.com/ching-i/yolo-c49f70241aa7
+
+
+exec和dll檔生成請參考:
+https://codingnote.cc/zh-tw/p/199934/
+https://ithelp.ithome.com.tw/articles/10231950
+
+
+
+****************************************************************正文開始*******************************************************************
+
+1.請把你想要辨識的物體照片放在Face_detection\train資料夾下的image和val_image資料夾裡面(必須分開放，image是訓練用的 val_image是驗證用的，val_image圖片數可以少一點沒關西)
+
+ #########如果要用labelme程式把物體框出來並打上標籤就把照片放在Face_detection資料夾下的train_images和val_images的資料夾內
+
+2.請用labelImg程式把物體框出來並打上標籤
+  
+  或是使用labelme程式上標籤(建議使用，因為可以有多邊形框選物件功能，詳細labelme步驟請看下方，並請跳過步驟3)
+
+##########附註 如需要用labelme請在cmd命令端打labelme即可(任何地方的命令端都可)
+
+
+********************此步驟為額外步驟(僅使用labelme程式框選物件上標籤的人要做此步驟)都將物體標籤完後才往下做
+                    
+                    (1).請將圖片和json放在同一個資料夾下(資料夾下僅能放圖片和對應的json檔案)，分2個資料夾放(1."train_images" 2."val_images")，2個資料夾必須放在Face_detection資料夾下
+                    (2).請在Face_detection資料夾下開啟cmd命令端，並執行以下指令，其中xxx改為train_images、val_images資料夾所在路徑，"一次選一種"就好，2種都要用到
+			python load_json_to_yolotxt.py --data_dir xxx
+
+
+
+
+3.*********(此步驟僅限使用"labelImg做物件標籤的人使用")***********
+  使用Face_detection下的change_form_to_txt.py將label bndBox 格式轉為 txt 檔(###注意.py檔轉換必須2次因為有2個資料夾的照片要轉，內附註解會教要換哪個資料夾)
+  程式碼修改好後直接在cmd上打python change_form_to_txt.py就好囉
+
+4.改寫Face_detection/cfg資料夾下的 face.data和face.name和yolov4-tiny-obj.cfg
+
+5.face.data檔案 請改calsser(改為你要辨識物體的標籤總數量，注意不是圖片數量)，train改為train.txt所在位置valid改val.txt位置和names改face.names.txt位置，backup改weights資料夾位置
+
+6.face.name檔案 請改寫上你的標籤名稱(記得要按照順序打，不然會顯示錯的標籤)
+
+7.yolov4-tiny-obj.cfg改法請看https://www.codenong.com/cs107053328/
+
+8.可以開始訓練了
+
+******************************************要訓練在D:\YOLO\darknet 的cmd上用這個指令********************************************
+
+build\darknet\x64\darknet.exe detector train Face_detection\cfg\face.data Face_detection\cfg\yolov4-tiny-obj.cfg Face_detection\cfg\yolov4-tiny.conv.29 -dont_show
+
+
+
+*****************************************從上一次記錄的權重檔繼續train**********************************
+
+在D:\YOLO\darknet 的cmd上用這個指令
+build\darknet\x64\darknet.exe detector train Face_detection\cfg\face.data Face_detection\cfg\yolov4-tiny-obj.cfg Face_detection\cfg\weights\yolov4-tiny-obj_last.weights -dont_show
+
+
+
+
+###########重要****************************辨識前必要動作************************************************
+
+記得把darknet.exe和yolo_cpp_dll.dll 生出來 生出來的步驟請上網查上面有參考網址
+
+
+********************************************要輸出圖片辨識用這個指令******************************************
+
+
+####最後面xxx.jpg請改為自己要辨識的圖片檔案(要有附檔名ex: .jpg)
+
+在D:\YOLO\darknet 的cmd上用這個指令
+build\darknet\x64\darknet.exe detector test Face_detection\cfg\face.data Face_detection\cfg\yolov4-tiny-obj.cfg Face_detection\cfg\weights\yolov4-tiny-obj_last.weights Face_detection\train\image\xxx.jpg
+
+或是在D:\YOLO\test資料夾下執行下列指令
+
+python yolo_opencv.py
+
+
+********************************************要使用即時辨識camera用這個指令***************************************
+
+
+在D:\YOLO\darknet 的cmd上用這個指令
+build\darknet\x64\darknet.exe detector demo Face_detection\cfg\face.data Face_detection\cfg\yolov4-tiny-obj.cfg Face_detection\cfg\weights\yolov4-tiny-obj_last.weights -c 0
+
+
+
+或是這個(用下面這個指令請在YOLO/test資料夾下使用，只有那檔案符合dll連結所需)
+
+*****************************************如欲使用即時辨識前必要動作*************************************
+要辨識的圖片train好之後，請把Face_detection複製到YOLO/test資料夾(覆蓋)
+
+python darknet_video_mod.py
+
+
+
+
+
+
+
+***********************************************************************************************************************
+
+
+
+
+
+
+
